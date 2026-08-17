@@ -35,6 +35,7 @@ export function error_handler(err, req, res, next) {
     res.status(status_code).json({
         success: false,
         code,
-        message
+        message,
+        ...err.extra
     })
 }

@@ -20,7 +20,8 @@ const env = {
         refresh_token: required("REFRESH_TOKEN"),
         access_token_expiry: process.env.ACCESS_TOKEN_EXPIRY || "15m",
         refresh_token_expiry: process.env.REFRESH_TOKEN_EXPIRY || "7d"
-    }
+    },
+    deviceHashSecret: required("DEVICE_HASH_SECRET")
 }
 
 export default env
