@@ -14,7 +14,13 @@ const env = {
     db: {
         mongodb_uri: required("MONGO_URI")
     },
-    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173"
+    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+    jwt: {
+        access_token: required("ACCESS_TOKEN"),
+        refresh_token: required("REFRESH_TOKEN"),
+        access_token_expiry: process.env.ACCESS_TOKEN_EXPIRY || "15m",
+        refresh_token_expiry: process.env.REFRESH_TOKEN_EXPIRY || "7d"
+    }
 }
 
 export default env
