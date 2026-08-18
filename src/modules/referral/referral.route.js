@@ -22,6 +22,7 @@ router.post(
 
 router.get("/", authenticate, validate(referralValidation.list_schema), referralController.list_referrals)
 router.get("/spam", authenticate, referralController.spam)
+router.get("/reward-config" , referralController.get_reward_config)
 
 
 export default router

@@ -104,6 +104,7 @@ async function dashboard({ user_id }) {
         totalXpEarned: totals.XP,
         totalGemsEarned: totals.GEMS,
         totalTokensEarned: totals.TOKENS,
+        totalSpinsEarned: totals.SPINS,
         recentReferrals: referrals.map(r => ({
             id: r._id,
             status: r.status,
