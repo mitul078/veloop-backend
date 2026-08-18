@@ -43,6 +43,10 @@ async function revoke_session({ session_id }) {
 }
 
 
+async function delete_revoked_tokens_for_session({ session_id }) {
+    return RefreshToken.deleteMany({ session_id, revoked: true })
+}
+
 
 export default {
     create_user,
@@ -54,5 +58,6 @@ export default {
     get_refresh_token,
     revoke_session,
     revoke_token,
+    delete_revoked_tokens_for_session
     
 }

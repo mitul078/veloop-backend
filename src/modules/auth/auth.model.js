@@ -17,5 +17,7 @@ const refresh_token = new mongoose.Schema({
     expires_at: { type: Date, required: true }
 })
 
+refresh_token.index({ expires_at: 1 }, { expireAfterSeconds: 0 })
+
 export const Auth = mongoose.model("Auth", auth_schema)
 export const RefreshToken = mongoose.model("RefreshToken", refresh_token)

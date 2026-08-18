@@ -104,6 +104,8 @@ async function rotate_token({ refresh_token }) {
         expires_at: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000))
     })
 
+    await authRepository.delete_revoked_tokens_for_session({ session_id: stored_refresh_token.session_id })
+
     return {
         user: payload, access_token, refresh_token: new_refresh_token
     }
