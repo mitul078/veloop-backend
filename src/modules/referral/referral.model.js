@@ -51,7 +51,16 @@ const ad_event_schema = new mongoose.Schema({
 const device_schema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
     device_hash: { type: String, required: true },
-    fingerprint_hash: { type: String, default: null }
+    fingerprint_hash: { type: String, default: null },
+    ip_hash: { type: String, default: null }
+}, { timestamps: true })
+
+const registration_flag_schema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
+    reason: { type: String, required: true },
+    matched_email: { type: String, default: null },
+    risk_score: { type: Number, default: 30 },
+    status: { type: String, default: "FLAGGED" }
 }, { timestamps: true })
 
 
@@ -67,7 +76,10 @@ ad_event_schema.index({ user: 1 })
 
 device_schema.index({ device_hash: 1 })
 device_schema.index({ fingerprint_hash: 1 })
+device_schema.index({ ip_hash: 1 })
 device_schema.index({ user: 1, device_hash: 1 }, { unique: true })
+
+registration_flag_schema.index({ user: 1 })
 
 
 
@@ -79,3 +91,4 @@ export const ReferralReward = mongoose.model("ReferralReward", referral_reward_s
 export const SpamReferral = mongoose.model("SpamReferral", spam_referral_schema)
 export const AdEvent = mongoose.model("AdEvent", ad_event_schema)
 export const DeviceLink = mongoose.model("DeviceLink", device_schema)
+export const RegistrationFlag = mongoose.model("RegistrationFlag", registration_flag_schema)

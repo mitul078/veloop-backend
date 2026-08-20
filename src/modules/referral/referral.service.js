@@ -26,7 +26,7 @@ async function get_or_create_code({ user_id }) {
     throw new Error("FAILED TO GENERATE UNIQUE REFERRAL CODE")
 }
 
-async function attribute_referral({ current_user_id, code, device_id, user_agent , fingerprint }) {
+async function attribute_referral({ current_user_id, code, device_id, user_agent, fingerprint, ip }) {
     const code_owner = await referralRepository.get_user_by_code({ code })
     if (!code_owner) throw new ValidationError("INVALID REFERRAL CODE")
 
@@ -36,7 +36,7 @@ async function attribute_referral({ current_user_id, code, device_id, user_agent
     }
 
     const fraud_result = await fraudDetectionService.check_self_referral({
-        current_user_id, device_id, user_agent , fingerprint
+        current_user_id, device_id, user_agent, fingerprint, ip
     })
 
     if (fraud_result.is_fraud) {
@@ -55,6 +55,16 @@ async function attribute_referral({ current_user_id, code, device_id, user_agent
             true,
             { maskedEmail: mask_email(fraud_result.matched_email) }
         )
+    }
+
+    if (fraud_result.flagged_for_review) {
+        await referralRepository.save_spam_referral({
+            referrer_user: referrer_user_id,
+            referred_user: current_user_id,
+            reason: fraud_result.reason,
+            device_hash: null,
+            risk_score: 30
+        })
     }
 
     try {

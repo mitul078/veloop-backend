@@ -19,7 +19,8 @@ async function register(req, res, next) {
             password,
             device_id: req.device_token,
             user_agent: req.headers["user-agent"],
-            fingerprint: req.client_fingerprint
+            fingerprint: req.client_fingerprint,
+            ip:req.ip
         })
         return res.status(201).json(new ApiResponse(user, "REGISTER SUCCESSFUL"))
     } catch (error) {

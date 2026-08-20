@@ -9,7 +9,7 @@ import { authRoutes } from "./modules/auth/index.js";
 import { referralRoutes } from "./modules/referral/index.js";
 
 const app = express()
-
+app.set('trust proxy', 1)
 app.use(helmet())
 app.use(cors({
     origin: [env.frontendUrl, "http://localhost:5173"],

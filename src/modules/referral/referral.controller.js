@@ -22,7 +22,8 @@ async function attribute(req, res, next) {
             code,
             device_id: req.device_token,
             user_agent: req.headers["user-agent"],
-            fingerprint: req.client_fingerprint
+            fingerprint: req.client_fingerprint,
+            ip:req.ip
         })
         return res.status(201).json(new ApiResponse(referral, "REFERRAL ATTRIBUTED"))
     } catch (error) {

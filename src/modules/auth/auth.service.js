@@ -11,8 +11,8 @@ import mask_email from "../../shared/utils/email_mask.js";
 const graceWindowCache = new Map();
 const inFlightRotations = new Map();
 
-async function register_user({ email, password, device_id, user_agent, fingerprint }) {
-    const device_check = await fraudDetectionService.check_device_registered({ device_id, user_agent, fingerprint })
+async function register_user({ email, password, device_id, user_agent, fingerprint, ip }) {
+    const device_check = await fraudDetectionService.check_device_registered({ device_id, user_agent, fingerprint, ip })
     if (device_check.blocked) {
         throw new AppError(
             "This device already has a VELOOP Rewards account. Please log in instead.",
@@ -28,8 +28,18 @@ async function register_user({ email, password, device_id, user_agent, fingerpri
     try {
         const save_user = await authRepository.create_user({ email, password: hash_password })
         await fraudDetectionService.link_device_to_user({
-            user_id: save_user._id, device_id, user_agent, fingerprint
+            user_id: save_user._id, device_id, user_agent, fingerprint, ip
         })
+
+        if (device_check.flagged_for_review) {
+            // IP-only match at registration — allow it through, just log for later review
+            await fraudDetectionService.flag_registration_for_review({
+                user_id: save_user._id,
+                reason: "IP_ONLY_MATCH",
+                matched_email: device_check.matched_email
+            })
+        }
+
         return { id: save_user._id, email }
     } catch (error) {
         if (error.code === 11000) {
@@ -38,7 +48,6 @@ async function register_user({ email, password, device_id, user_agent, fingerpri
         throw error
     }
 }
-
 async function login_user({ email, password }) {
     const user = await authRepository.get_user_with_password({ email })
 

@@ -6,8 +6,8 @@ import { auth_rate_limiter, register_rate_limiter } from "../../shared/middlewar
 import ensure_device_token from "../../shared/middlewares/device.middleware.js"
 const router = Router()
 
-router.post("/register", register_rate_limiter, ensure_device_token, validate(authValidation.register_schema), authController.register)
-router.post("/login", auth_rate_limiter, validate(authValidation.login_schema), authController.login)
+router.post("/register", ensure_device_token, validate(authValidation.register_schema), authController.register)
+router.post("/login", validate(authValidation.login_schema), authController.login)
 router.post("/refresh-token", auth_rate_limiter, authController.rotate_token)
 router.post("/logout", authController.logout)
 

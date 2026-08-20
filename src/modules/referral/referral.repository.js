@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import { Referral, ReferralCode, ReferralProgress, SpamReferral, ReferralReward, AdEvent, DeviceLink } from "./referral.model.js"
+import { Referral, ReferralCode, ReferralProgress, SpamReferral, ReferralReward, AdEvent, DeviceLink, RegistrationFlag } from "./referral.model.js"
 
 async function get_referral_code_by_user({ user_id }) {
     return ReferralCode.findOne({ user: user_id })
@@ -114,19 +114,47 @@ async function get_recent_spam_by_referrer({ referrer_user_id, limit = 5 }) {
     return SpamReferral.find({ referrer_user: referrer_user_id }).select("+createdAt").sort({ createdAt: -1 }).limit(limit)
 }
 
-async function find_device_link({ device_hash, fingerprint_hash }) {
-    const query = fingerprint_hash
-        ? { $or: [{ device_hash }, { fingerprint_hash }] }
-        : { device_hash }
-    return DeviceLink.findOne(query).populate("user", "email")
+async function find_device_link({ device_hash, fingerprint_hash, ip_hash }) {
+    const or_conditions = [{ device_hash }]
+    if (fingerprint_hash) or_conditions.push({ fingerprint_hash })
+    if (ip_hash) or_conditions.push({ ip_hash })
+
+    return DeviceLink.findOne({ $or: or_conditions }).populate("user", "email")
 }
 
-async function record_device_link({ device_hash, fingerprint_hash, user_id }) {
+async function record_device_link({ device_hash, fingerprint_hash, ip_hash, user_id }) {
     return DeviceLink.findOneAndUpdate(
         { user: user_id, device_hash },
-        { $setOnInsert: { user: user_id, device_hash }, $set: { fingerprint_hash } },
+        { $setOnInsert: { user: user_id, device_hash }, $set: { fingerprint_hash, ip_hash } },
         { upsert: true, new: true }
     )
+}
+
+async function find_device_link_detailed({ device_hash, fingerprint_hash, ip_hash, current_user_id }) {
+    const base_query = current_user_id ? { user: { $ne: current_user_id } } : {}
+
+    const strong_match = await DeviceLink.findOne({
+        $or: [{ device_hash }, ...(fingerprint_hash ? [{ fingerprint_hash }] : [])],
+        ...base_query
+    }).populate("user", "email")
+
+    if (strong_match) return { match: strong_match, matched_on: "device_or_fingerprint", confidence: "high" }
+
+    if (ip_hash) {
+        const ip_match = await DeviceLink.findOne({ ip_hash, ...base_query }).populate("user", "email")
+        if (ip_match) return { match: ip_match, matched_on: "ip", confidence: "low" }
+    }
+
+    return null
+}
+
+async function save_registration_flag({ user_id, reason, matched_email }) {
+    return RegistrationFlag.create({
+        user: user_id,
+        reason,
+        matched_email,
+        risk_score: 30
+    })
 }
 
 
@@ -150,5 +178,7 @@ export default {
     save_ad_event,
     get_recent_spam_by_referrer,
     find_device_link,
-    record_device_link
+    record_device_link,
+    find_device_link_detailed,
+    save_registration_flag
 }
