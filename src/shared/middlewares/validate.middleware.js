@@ -10,7 +10,7 @@ function validate(schema) {
 
         if (!result.success) {
             const message = result.error.issues.map(e => e.message).join(", ")
-            return next(new ValidationError(message))
+            return next(new ValidationError(message, "VALIDATION_ERROR"))
         }
 
         next()

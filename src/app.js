@@ -11,7 +11,7 @@ import { referralRoutes } from "./modules/referral/index.js";
 const app = express()
 
 app.use(helmet())
-app.use(cors({ origin: env.frontendUrl, credentials: true }))
+app.use(cors({ origin: [env.frontendUrl, "http://localhost:5173"], credentials: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(req_logger)

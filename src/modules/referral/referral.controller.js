@@ -66,10 +66,24 @@ async function get_reward_config(req, res, next) {
     }
 }
 
+async function code_exists(req, res, next) {
+    try {
+
+        const { code } = req.query
+        const result = await referralService.code_exists({ code })
+        return res.status(200).json(new ApiResponse(result, "CODE EXISTS"))
+
+    } catch (error) {
+        next(error)
+
+    }
+}
+
 export default {
     get_dashboard,
     attribute,
     list_referrals,
     spam,
-    get_reward_config
+    get_reward_config,
+    code_exists
 }

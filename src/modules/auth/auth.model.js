@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const auth_schema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, select: false, required: true, },
-    phone: { type: String, unique: true, sparse: true },
     verified: { type: Boolean, default: false }
 
 }, { timestamps: true })
@@ -17,6 +16,8 @@ const refresh_token = new mongoose.Schema({
     expires_at: { type: Date, required: true }
 })
 
+refresh_token.index({ refresh_token: 1 })
+refresh_token.index({ session_id: 1 })
 refresh_token.index({ expires_at: 1 }, { expireAfterSeconds: 0 })
 
 export const Auth = mongoose.model("Auth", auth_schema)

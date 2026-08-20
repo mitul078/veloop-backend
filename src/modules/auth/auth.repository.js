@@ -1,7 +1,7 @@
 import { Auth, RefreshToken } from "./auth.model.js"
 
-async function create_user({ email, password, phone }) {
-    return Auth.create({ email, password, phone })
+async function create_user({ email, password }) {
+    return Auth.create({ email, password })
 }
 
 async function get_user({ email }) {
@@ -34,14 +34,17 @@ async function get_refresh_token({ refresh_token }) {
     return RefreshToken.findOne({ refresh_token })
 }
 
-async function revoke_token({ refresh_token }) {
-    return RefreshToken.findOneAndUpdate({ refresh_token }, { revoked: true }, { new: true })
+async function rotate_token_atomic({ refresh_token }) {
+    return RefreshToken.findOneAndUpdate(
+        { refresh_token, revoked: false },
+        { revoked: true },
+        { new: true }
+    )
 }
 
 async function revoke_session({ session_id }) {
-    return RefreshToken.updateMany({ session_id }, { $set: { revoked: true } })
+    return RefreshToken.deleteMany({ session_id })
 }
-
 
 async function delete_revoked_tokens_for_session({ session_id }) {
     return RefreshToken.deleteMany({ session_id, revoked: true })
@@ -57,7 +60,6 @@ export default {
     create_refresh_token,
     get_refresh_token,
     revoke_session,
-    revoke_token,
+    rotate_token_atomic,
     delete_revoked_tokens_for_session
-    
 }

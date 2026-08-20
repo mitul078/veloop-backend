@@ -65,6 +65,7 @@ spam_referral_schema.index({ referrer_user: 1 })
 ad_event_schema.index({ user: 1 })
 
 device_schema.index({ device_hash: 1 })
+device_schema.index({ user: 1, device_hash: 1 }, { unique: true })
 
 
 

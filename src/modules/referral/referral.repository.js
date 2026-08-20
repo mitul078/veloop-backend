@@ -119,7 +119,11 @@ async function find_device_link({ device_hash }) {
 }
 
 async function record_device_link({ device_hash, user_id }) {
-    return DeviceLink.create({ user: user_id, device_hash })
+    return DeviceLink.findOneAndUpdate(
+        { user: user_id, device_hash },
+        { $setOnInsert: { user: user_id, device_hash } },
+        { upsert: true, new: true }
+    )
 }
 
 

@@ -129,9 +129,15 @@ async function spam_summary({ user_id }) {
     return { spam_count, recent_spam: recent_spam.map(s => ({ date: s.createdAt })) }
 }
 
+async function code_exists({ code }) {
+    const owner = await referralRepository.get_user_by_code({ code })
+    return { valid: !!owner }
+}
+
 export default {
     attribute_referral,
     dashboard,
     list_referrals,
-    spam_summary
+    spam_summary,
+    code_exists
 }

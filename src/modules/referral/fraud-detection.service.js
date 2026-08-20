@@ -7,8 +7,6 @@ async function check_self_referral({ current_user_id, device_id, user_agent }) {
     const device_hash = hash_device({ device_id, user_agent })
     const existing_link = await referralRepository.find_device_link({ device_hash })
 
-    await referralRepository.record_device_link({ user_id: current_user_id, device_hash })
-
     if (existing_link && existing_link.user._id.toString() !== current_user_id.toString()) {
         return {
             is_fraud: true,
@@ -18,7 +16,40 @@ async function check_self_referral({ current_user_id, device_id, user_agent }) {
         }
     }
 
+
+    await referralRepository.record_device_link({ user_id: current_user_id, device_hash })
+
+
     return { is_fraud: false }
 }
 
-export default { check_self_referral }
+async function check_device_registered({ device_id, user_agent }) {
+    if (!device_id) return { blocked: false }
+
+    const device_hash = hash_device({ device_id, user_agent })
+    const existing_device = await referralRepository.find_device_link({ device_hash })
+
+    if (existing_device) {
+        return {
+            blocked: true,
+            matched_email: existing_device.user.email,
+            device_hash
+        }
+    }
+
+    return { blocked: false, device_hash }
+}
+
+
+async function link_device_to_user({ user_id, device_id, user_agent }) {
+    if (!device_id) return
+
+    const device_hash = hash_device({ device_id, user_agent })
+    await referralRepository.record_device_link({ user_id, device_hash })
+}
+
+export default {
+    check_self_referral,
+    check_device_registered,
+    link_device_to_user
+}
