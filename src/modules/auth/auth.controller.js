@@ -13,21 +13,17 @@ const REFRESH_COOKIE_OPTIONS = {
 
 async function register(req, res, next) {
     try {
-
         const { email, password } = req.body
-
         const user = await authService.register_user({
             email,
             password,
             device_id: req.device_token,
-            user_agent: req.headers["user-agent"]
+            user_agent: req.headers["user-agent"],
+            fingerprint: req.client_fingerprint
         })
-
         return res.status(201).json(new ApiResponse(user, "REGISTER SUCCESSFUL"))
-
     } catch (error) {
         next(error)
-
     }
 }
 

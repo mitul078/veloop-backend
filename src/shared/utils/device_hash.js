@@ -6,5 +6,9 @@ function hash_device({ device_id, user_agent }) {
         .update(`${device_id}::${user_agent || ""}`)
         .digest("hex")
 }
+export function hash_fingerprint({ fingerprint }) {
+    return crypto.createHash("sha256").update(fingerprint).digest("hex")
+}
+
 
 export default hash_device

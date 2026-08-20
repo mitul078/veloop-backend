@@ -50,7 +50,8 @@ const ad_event_schema = new mongoose.Schema({
 
 const device_schema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
-    device_hash: { type: String, required: true }
+    device_hash: { type: String, required: true },
+    fingerprint_hash: { type: String, default: null }
 }, { timestamps: true })
 
 
@@ -65,6 +66,7 @@ spam_referral_schema.index({ referrer_user: 1 })
 ad_event_schema.index({ user: 1 })
 
 device_schema.index({ device_hash: 1 })
+device_schema.index({ fingerprint_hash: 1 })
 device_schema.index({ user: 1, device_hash: 1 }, { unique: true })
 
 

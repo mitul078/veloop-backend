@@ -16,20 +16,17 @@ async function get_dashboard(req, res, next) {
 
 async function attribute(req, res, next) {
     try {
-
         const { code } = req.body
         const referral = await referralService.attribute_referral({
             current_user_id: req.user.id,
             code,
             device_id: req.device_token,
-            user_agent: req.headers["user-agent"]
+            user_agent: req.headers["user-agent"],
+            fingerprint: req.client_fingerprint
         })
-
         return res.status(201).json(new ApiResponse(referral, "REFERRAL ATTRIBUTED"))
-
     } catch (error) {
         next(error)
-
     }
 }
 

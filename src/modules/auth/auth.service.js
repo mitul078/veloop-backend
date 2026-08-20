@@ -11,10 +11,8 @@ import mask_email from "../../shared/utils/email_mask.js";
 const graceWindowCache = new Map();
 const inFlightRotations = new Map();
 
-async function register_user({ email, password, device_id, user_agent }) {
-
-
-    const device_check = await fraudDetectionService.check_device_registered({ device_id, user_agent })
+async function register_user({ email, password, device_id, user_agent, fingerprint }) {
+    const device_check = await fraudDetectionService.check_device_registered({ device_id, user_agent, fingerprint })
     if (device_check.blocked) {
         throw new AppError(
             "This device already has a VELOOP Rewards account. Please log in instead.",
@@ -29,13 +27,9 @@ async function register_user({ email, password, device_id, user_agent }) {
 
     try {
         const save_user = await authRepository.create_user({ email, password: hash_password })
-
         await fraudDetectionService.link_device_to_user({
-            user_id: save_user._id,
-            device_id,
-            user_agent
+            user_id: save_user._id, device_id, user_agent, fingerprint
         })
-
         return { id: save_user._id, email }
     } catch (error) {
         if (error.code === 11000) {

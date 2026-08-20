@@ -114,14 +114,17 @@ async function get_recent_spam_by_referrer({ referrer_user_id, limit = 5 }) {
     return SpamReferral.find({ referrer_user: referrer_user_id }).select("+createdAt").sort({ createdAt: -1 }).limit(limit)
 }
 
-async function find_device_link({ device_hash }) {
-    return DeviceLink.findOne({ device_hash }).populate("user", "email")
+async function find_device_link({ device_hash, fingerprint_hash }) {
+    const query = fingerprint_hash
+        ? { $or: [{ device_hash }, { fingerprint_hash }] }
+        : { device_hash }
+    return DeviceLink.findOne(query).populate("user", "email")
 }
 
-async function record_device_link({ device_hash, user_id }) {
+async function record_device_link({ device_hash, fingerprint_hash, user_id }) {
     return DeviceLink.findOneAndUpdate(
         { user: user_id, device_hash },
-        { $setOnInsert: { user: user_id, device_hash } },
+        { $setOnInsert: { user: user_id, device_hash }, $set: { fingerprint_hash } },
         { upsert: true, new: true }
     )
 }

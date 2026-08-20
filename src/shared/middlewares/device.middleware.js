@@ -5,7 +5,7 @@ function ensure_device_token(req, res, next) {
 
     if (!token) {
         token = crypto.randomUUID()
-        
+
         res.cookie("device_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -15,6 +15,7 @@ function ensure_device_token(req, res, next) {
     }
 
     req.device_token = token
+    req.client_fingerprint = req.headers["x-fingerprint"] || null
     next()
 }
 

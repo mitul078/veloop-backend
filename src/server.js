@@ -7,7 +7,7 @@ async function bootstrap() {
     await connectDB()
 
     app.listen(env.port, () => {
-        console.log("SERVER START")
+        console.log("SERVER START", env.port)
     })
 
 }
