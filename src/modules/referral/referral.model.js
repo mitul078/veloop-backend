@@ -33,34 +33,26 @@ const referral_reward_schema = new mongoose.Schema({
 }, { timestamps: true })
 
 
-const spam_referral_schema = new mongoose.Schema({
-    referrer_user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
-    referred_user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", default: null },
-    reason: { type: String, required: true },
-    device_hash: { type: String, default: null },
-    risk_score: { type: Number, default: 0 },
-    status: { type: String, default: "FLAGGED" }
-}, { timestamps: true })
-
 const ad_event_schema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
     provider_event_id: { type: String, required: true, unique: true }
 }, { timestamps: true })
 
 
-const device_schema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
-    device_hash: { type: String, required: true },
-    fingerprint_hash: { type: String, default: null },
-    ip_hash: { type: String, default: null }
+const device_account_schema = new mongoose.Schema({
+    visitorId: { type: String, required: true, unique: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
+    status: { type: String, default: "active" },
+    firstSeenAt: { type: Date, default: Date.now },
+    lastSeenAt: { type: Date, default: Date.now }
 }, { timestamps: true })
 
-const registration_flag_schema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", required: true },
-    reason: { type: String, required: true },
-    matched_email: { type: String, default: null },
-    risk_score: { type: Number, default: 30 },
-    status: { type: String, default: "FLAGGED" }
+const fraud_attempt_schema = new mongoose.Schema({
+    type: { type: String, enum: ["REGISTRATION_BLOCKED", "SELF_REFERRAL_BLOCKED"], required: true },
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", default: null },
+    referrer_user: { type: mongoose.Schema.Types.ObjectId, ref: "Auth", default: null },
+    visitorId: { type: String, required: true },
+    reason: { type: String, required: true }
 }, { timestamps: true })
 
 
@@ -70,17 +62,10 @@ referral_schema.index({ status: 1 })
 
 referral_reward_schema.index({ referral: 1, milestone: 1, reward_type: 1 }, { unique: true })
 
-spam_referral_schema.index({ referrer_user: 1 })
-
 ad_event_schema.index({ user: 1 })
 
-device_schema.index({ device_hash: 1 })
-device_schema.index({ fingerprint_hash: 1 })
-device_schema.index({ ip_hash: 1 })
-device_schema.index({ user: 1, device_hash: 1 }, { unique: true })
-
-registration_flag_schema.index({ user: 1 })
-
+device_account_schema.index({ visitorId: 1 }, { unique: true })
+device_account_schema.index({ userId: 1 })
 
 
 //exports
@@ -88,7 +73,6 @@ export const ReferralCode = mongoose.model("ReferralCode", referral_code_schema)
 export const Referral = mongoose.model("Referral", referral_schema)
 export const ReferralProgress = mongoose.model("ReferralProgress", referral_progress_schema)
 export const ReferralReward = mongoose.model("ReferralReward", referral_reward_schema)
-export const SpamReferral = mongoose.model("SpamReferral", spam_referral_schema)
 export const AdEvent = mongoose.model("AdEvent", ad_event_schema)
-export const DeviceLink = mongoose.model("DeviceLink", device_schema)
-export const RegistrationFlag = mongoose.model("RegistrationFlag", registration_flag_schema)
+export const DeviceAccount = mongoose.model("DeviceAccount", device_account_schema)
+export const FraudAttempt = mongoose.model("FraudAttempt", fraud_attempt_schema)

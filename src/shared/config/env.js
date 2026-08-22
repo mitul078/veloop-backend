@@ -21,7 +21,11 @@ const env = {
         access_token_expiry: process.env.ACCESS_TOKEN_EXPIRY || "15m",
         refresh_token_expiry: process.env.REFRESH_TOKEN_EXPIRY || "7d"
     },
-    deviceHashSecret: required("DEVICE_HASH_SECRET")
+    deviceHashSecret: required("DEVICE_HASH_SECRET"),
+    fingerprint: {
+        secret_key: process.env.FINGERPRINT_SECRET_KEY,
+        region: process.env.FINGERPRINT_REGION || "us"
+    }
 }
 
 export default env

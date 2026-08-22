@@ -2,7 +2,8 @@ import { z } from "zod"
 
 const attribute_schema = z.object({
     body: z.object({
-        code: z.string().min(3, "REFERRAL CODE TOO SHORT").max(20, "REFERRAL CODE TOO LONG")
+        code: z.string().min(3, "REFERRAL CODE TOO SHORT").max(20, "REFERRAL CODE TOO LONG"),
+        requestId: z.string().min(1, "DEVICE VERIFICATION REQUIRED")
     })
 })
 
@@ -15,4 +16,4 @@ const list_schema = z.object({
 })
 
 
-export default { attribute_schema , list_schema }
+export default { attribute_schema, list_schema }
